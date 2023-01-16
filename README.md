@@ -16,7 +16,10 @@
   <source src="https://devshamseer.github.io/all-audio-songs/allsongs/sonng37.mp3" type="audio/mpeg">
 </audio>
   
-https://devshamseer.github.io/all-audio-songs/allsongs/sonng37.mp3  
+
+caption1 | caption2
+:-: | :-:
+<video src='https://devshamseer.github.io/all-audio-songs/allsongs/sonng37.mp3  ' width=180/> | <video src='https://devshamseer.github.io/all-audio-songs/allsongs/sonng37.mp3' width=180/>
 
 
 1. copy the link
