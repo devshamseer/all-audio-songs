@@ -15,7 +15,7 @@
 https://devshamseer.github.io/youtubeApi/shorts/video1.mp4
 
 
-<video width="400" controls>
+<video width="700" height="500" controls>
   <source src="https://devshamseer.github.io/youtubeApi/shorts/video1.mp4" type="video/mp4">
   <source src="https://devshamseer.github.io/youtubeApi/shorts/video1.mp4" type="video/ogg">
 
