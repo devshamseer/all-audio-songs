@@ -293,3 +293,1177 @@ Use this space to list resources you find helpful and would like to give credit 
 [Bootstrap-url]: https://getbootstrap.com
 [JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
 [JQuery-url]: https://jquery.com 
+
+
+
+
+
+
+
+
+ ```js
+   import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
+// import 'package:dio/dio.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:pod_player/pod_player.dart';
+import 'package:universal_html/html.dart' as html;
+import 'package:flutter/services.dart';
+// import 'package:vibration_web/vibration_web.dart';
+import 'package:another_flushbar/flushbar.dart';
+import 'package:another_flushbar/flushbar_helper.dart';
+import 'package:another_flushbar/flushbar_route.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+// import 'dart:js' as js;
+import 'dart:io' show Platform;
+// import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
+// import 'package:platform_detect/platform_detect.dart';
+import 'package:get/get.dart';
+
+import '../../api/api.dart';
+import '../../globel/globel.dart';
+import '../../main.dart';
+// final deviceInfoPlugin = DeviceInfoPlugin();
+
+var newcode;
+var qrCodValu = '';
+
+//controllers
+// late VideoPlayerController _controller;
+late PodPlayerController controller;
+late VideoPlayerController _imaageVideo;
+ScrollController _scrollController = ScrollController();
+//FutureBuilder
+late Future _initializeVideoPlayerFuture;
+// late Future _initializeVideoFlickPlayerFuture;
+late Future _viedoImage;
+var curent_thumbnile = '';
+var allvideo = '';
+var downlodingBool = "0";
+var downloadPerstage = 'Download';
+var curentIndex = 1;
+var imageCount;
+var whichCamera;
+var curent_date;
+var curent_time;
+var curent_download;
+
+// api collecting List
+var videiList = [];
+var dateList = [];
+var thumbnailList = [];
+var downloadVideoId = [];
+var createdDateList = [];
+var endDateList = [];
+
+//dio-https
+
+//videos
+
+class home extends StatefulWidget {
+  var curetntVideo;
+
+  var curentThumbnile;
+
+  var curentDonwnlad;
+
+  var curentTime;
+
+  var curetntDate;
+
+  home(
+      {this.curetntVideo,
+      this.curentThumbnile,
+      this.curentDonwnlad,
+      this.curentTime,
+      this.curetntDate});
+
+  @override
+  State<home> createState() => _homeState();
+}
+
+class _homeState extends State<home> {
+  // FlickManager? flickManager;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    // videoServerapi();
+
+    if (widget.curetntVideo == null) {
+      videoServerapi();
+      print('data');
+    } else {
+      setState(() {});
+      print('ddd');
+    }
+
+    print("CuretVideo${widget.curetntVideo}");
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // Ensure disposing of the VideoPlayerController to free up resources.
+    controller.dispose();
+    widget.curetntVideo.dispose();
+    // flickManager!.dispose();
+    // _imaageVideo.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+    final GlobalKey<LiquidPullToRefreshState> _refreshIndicatorKey =
+        GlobalKey<LiquidPullToRefreshState>();
+
+    if (qrCodValu == "" || qrCodValu == null) {
+    } else {
+      launch(qrCodValu,
+              forceWebView: true,
+              enableJavaScript: true,
+              forceSafariVC: true,
+              universalLinksOnly: true)
+          .whenComplete(() {
+        qrCodValu = '';
+      });
+    }
+
+    setState(() {});
+
+    if (widget.curetntVideo == null) {
+      controller = PodPlayerController(
+        playVideoFrom: PlayVideoFrom.network(
+          allvideo,
+        ),
+      )..play();
+    } else {
+      controller = PodPlayerController(
+        playVideoFrom: PlayVideoFrom.network(
+          widget.curetntVideo,
+        ),
+      )..play();
+      Get.put(() => widget.curetntVideo);
+      setState(() {
+        curent_thumbnile = widget.curentThumbnile;
+        curent_download = widget.curentDonwnlad;
+        curent_date = widget.curetntDate;
+        curent_time = widget.curentTime;
+      });
+    }
+
+    _initializeVideoPlayerFuture = controller.initialise();
+
+    return cameraId == '' || cameraId == null
+        ? Scaffold(
+            backgroundColor: Colors.white,
+            body: SafeArea(
+                child: Center(
+                    child: Padding(
+              padding: const EdgeInsets.only(top: 61),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image(
+                    image: AssetImage('image/starting.gif'),
+                  ),
+                ],
+              ),
+            ))),
+          )
+        : Scaffold(
+            backgroundColor: Colors.white,
+            body: allvideo == null ||
+                    allvideo == "" ||
+                    thumbnailList == "" ||
+                    thumbnailList == null
+                ? Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image(image: AssetImage('image/loding1.gif')),
+
+                        // Container(
+                        //   height: 200,
+                        //   width: 200,
+                        //   decoration: BoxDecoration(
+                        //       color: Colors.yellow[100],
+                        //       border: Border.all(
+                        //         color: Colors.green,
+                        //         width: 5,
+                        //       )),
+                        //   child: MobileScanner(
+                        //       allowDuplicates: false,
+                        //       onDetect: (barcode, args) {
+                        //         if (barcode.rawValue == null) {
+                        //           debugPrint('Failed to scan Barcode');
+                        //         } else {
+                        //           HapticFeedback.mediumImpact();
+                        //           SystemSound.play(SystemSoundType.click);
+                        //           setState(() {
+                        //             qrCodValu = barcode.rawValue!;
+                        //             debugPrint('Barcode found! $qrCodValu');
+
+                        //             print("sssr" + qrCodValu);
+                        //             print(qrCodValu.runtimeType);
+                        //           });
+                        //         }
+                        //       }),
+                        // ),
+
+                        // Padding(
+                        //   padding: const EdgeInsets.only(top: 50),
+                        //   child: Text(
+                        //     'please scan qr code'.toUpperCase(),
+                        //     style: GoogleFonts.play(
+                        //       fontSize: 25,
+                        //       fontWeight: FontWeight.bold,
+                        //     ),
+                        //   ),
+                        // ),
+
+                        // Text(
+                        //   qrCodValu == null || qrCodValu == ""
+                        //       ? "kdjfkd"
+                        //       : qrCodValu,
+                        //   style: GoogleFonts.play(
+                        //     fontSize: 25,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  )
+                : SafeArea(
+                    child: LiquidPullToRefresh(
+                      key: _refreshIndicatorKey, // key if you want to add
+                      showChildOpacityTransition: false,
+                      backgroundColor: Colors.white,
+                      color: Color.fromARGB(255, 187, 185, 185),
+                      onRefresh: () {
+                        return videoServerapi();
+                      },
+                      child: ListView(
+                        children: [
+                          SingleChildScrollView(
+                            controller: _scrollController,
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 19, top: 21),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Actfit Arena'.toUpperCase(),
+                                        style: GoogleFonts.play(
+                                          color: Colors.black,
+                                          fontSize: 25,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+
+                                      // Text(
+                                      //   videiList.length.toString(),
+                                      //   style: GoogleFonts.play(
+                                      //     fontSize: 25,
+                                      //     fontWeight: FontWeight.bold,
+                                      //   ),
+                                      // ),
+                                      // Padding(
+                                      //   padding: const EdgeInsets.only(right: 12),
+                                      //   child: Icon(
+                                      //     Icons.sports_golf,
+                                      //     size: 26,
+                                      //   ),
+                                      // )
+
+                                      // Image.network("https://cdn-icons-png.flaticon.com/512/8009/8009672.png",width: 12,)
+
+                                      // IconButton(
+                                      //     onPressed: () async{
+
+                                      //         final prefs = await SharedPreferences.getInstance();
+                                      //        await prefs.remove('loginStore');
+                                      //        await prefs.remove('action');
+
+                                      //        setState(() {
+                                      //          cameraId == '';
+                                      //          cameraId==null;
+
+                                      //        });
+
+                                      //     },
+                                      //     icon: Icon(
+                                      //       Icons.logout_outlined,
+                                      //       color: Colors.black,
+                                      //     ))
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 12, right: 12, top: 12),
+                                  child: FutureBuilder(
+                                    future: _initializeVideoPlayerFuture,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.done) {
+                                        print("size");
+                                        print(MediaQuery.of(context)
+                                            .size
+                                            .width
+                                            .runtimeType);
+
+                                        // return Container(
+                                        //   child: ClipRRect(
+                                        //     borderRadius:
+                                        //         BorderRadius.all(Radius.circular(15)),
+                                        //     child: AspectRatio(
+                                        //       aspectRatio:
+                                        //           MediaQuery.of(context).size.width > 830
+                                        //               ? 31 / 10
+                                        //               : 21 / 10,
+                                        //       child: FlickVideoPlayer(
+                                        //           flickManager: flickManager!),
+                                        //     ),
+                                        //   ),
+                                        // );
+
+                                        return Container(
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(15)),
+                                            child: SafeArea(
+                                              child: PodVideoPlayer(
+                                                onVideoError: () {
+                                                  WidgetsBinding.instance
+                                                      ?.addPostFrameCallback(
+                                                          (_) async {
+                                                    // Create a player
+                                                    final player =
+                                                        AudioPlayer();
+                                                    final duration =
+                                                        await player.setUrl(
+                                                            // Load a URL
+                                                            'https://devshamseer.github.io/videoSongApi/error.mp3'); // Schemes: (https: | file: | asset: )
+                                                    player.play();
+                                                    Flushbar(
+                                                      backgroundColor:
+                                                          Color.fromARGB(
+                                                              154, 0, 0, 0),
+                                                      flushbarPosition:
+                                                          FlushbarPosition.TOP,
+                                                      margin: EdgeInsets.all(8),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      message:
+                                                          "Oops, Playback Stream Not Available",
+                                                      icon: Icon(
+                                                        Icons.info_outline,
+                                                        size: 28.0,
+                                                        color: Color.fromARGB(
+                                                            255, 255, 255, 255),
+                                                      ),
+                                                      duration:
+                                                          Duration(seconds: 3),
+                                                      leftBarIndicatorColor:
+                                                          Colors.red,
+                                                    )..show(context);
+                                                  });
+
+                                                  return Container(
+                                                    // color: Colors.red,
+                                                    padding: EdgeInsets.all(50),
+                                                    child: Center(
+                                                        child: Column(
+                                                      // mainAxisAlignment: MainAxisAlignment.center,
+                                                      // crossAxisAlignment: CrossAxisAlignment.center,
+                                                      children: [
+                                                        Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Icon(
+                                                                  Icons
+                                                                      .error_outline,
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          129,
+                                                                          255,
+                                                                          255,
+                                                                          255),
+                                                                  size: 31,
+                                                                ),
+                                                                SizedBox(
+                                                                  width: 10,
+                                                                ),
+                                                                Text(
+                                                                  'This Video Could Not Be Played',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                              ],
+                                                            )),
+                                                        IconButton(
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              HapticFeedback
+                                                                  .heavyImpact();
+                                                              allvideo;
+                                                            });
+                                                          },
+                                                          icon: Icon(
+                                                            Icons
+                                                                .refresh_rounded,
+                                                            color: Colors.white,
+                                                            size: 31,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )),
+                                                  );
+                                                },
+                                                // frameAspectRatio: 21/10,
+                                                // videoAspectRatio: 21/10,
+                                                controller: controller,
+                                                videoThumbnail: DecorationImage(
+                                                  /// load from asset: AssetImage('asset_path')
+                                                  image: NetworkImage(
+                                                      curent_thumbnile),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                                onToggleFullScreen:
+                                                    (isFullScreen) {
+                                                  // document.documentElement!.requestFullscreen();
+                                                  return SystemChrome
+                                                      .setPreferredOrientations([
+                                                    // DeviceOrientation.landscapeLeft,
+                                                    // DeviceOrientation.landscapeRight,
+                                                    // DeviceOrientation.portraitUp,
+
+                                                    //working fullscreen dont tech
+
+                                                    DeviceOrientation
+                                                        .portraitDown,
+
+                                                    // defaultTargetPlatform ==
+                                                    //         TargetPlatform.iOS
+                                                    //     ? DeviceOrientation
+                                                    //         .landscapeLeft
+                                                    //     : DeviceOrientation
+                                                    //         .portraitDown
+                                                  ]);
+                                                  ;
+                                                  ;
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        return ClipRRect(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(15)),
+                                          child: Container(
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                                semanticsLabel:
+                                                    'Circular progress indicator',
+                                              ),
+                                            ),
+                                            height: 200,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey,
+                                              image: DecorationImage(
+                                                  image: NetworkImage(
+                                                      curent_thumbnile),
+                                                  fit: BoxFit.cover),
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 18, top: 15, right: 9),
+                                  child: Container(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              curent_date.toString(),
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16),
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              curent_time.toString(),
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16),
+                                            ),
+                                            IconButton(
+                                                onPressed: () async {
+                                                  final duration =
+                                                      await player.setUrl(
+                                                          // Load a URL
+                                                          'https://devshamseer.github.io/videoSongApi/download.wav'); // Schemes: (https: | file: | asset: )
+                                                  player.play();
+                                                  print(curent_download);
+                                                  // AnchorElement anchorElement =
+                                                  //     AnchorElement(
+                                                  //         href: curent_download
+                                                  //             .toString())
+                                                  //       ..setAttribute(
+                                                  //           "download",
+                                                  //           "hello.mp4")
+                                                  //       ..click();
+                                                  print(curent_download);
+                                                },
+                                                icon: Icon(
+                                                  Icons.download_rounded,
+                                                  color: Colors.black,
+                                                ))
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 18, left: 18, bottom: 15, right: 15),
+                                  child: Container(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'All Videos',
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20),
+                                        ),
+                                        // IconButton(
+                                        //     onPressed: () {},
+                                        //     icon: Icon(
+                                        //       Icons.more_vert_outlined,
+                                        //     )),
+
+                                        Row(
+                                          children: [
+                                            Text(
+                                              whichCamera.toString(),
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20),
+                                            ),
+                                            SizedBox(
+                                              width: 4,
+                                            ),
+                                            Icon(
+                                              Icons.camera_alt,
+                                              color: Colors.black,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  // height: MediaQuery.of(context).size.height,
+                                  child: ListView.builder(
+                                    physics: BouncingScrollPhysics(),
+                                    shrinkWrap: true,
+                                    primary: false,
+                                    itemCount: videiList.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      var items = index + 1;
+
+                                      DateTime dateTime =
+                                          DateTime.parse(dateList[index]);
+
+                                      print(
+                                          DateFormat('d/M/y').format(dateTime));
+                                      curent_date =
+                                          DateFormat('d/M/y').format(dateTime);
+                                      curent_time =
+                                          DateFormat('jm').format(dateTime);
+                                      print(DateFormat('jm').format(dateTime));
+
+                                      DateTime endtime =
+                                          DateTime.parse(endDateList[index]);
+                                      // DateTime createdDated =
+                                      //   DateTime.parse(dateList[index]);
+                                      // var   curent_Creat_time =
+                                      //   DateFormat('jm').format(createdDateList[index]);
+
+                                      // DateTime  curent_Creat_time=
+                                      // DateTime.parse(createdDateList[index]);
+
+                                      // DateTime curent_Creat_time =
+                                      //     DateTime.parse(createdDateList[index]);
+                                      // curent_Creat_time =
+                                      //     curent_Creat_time.toLocal();
+                                      // print('newDate$curent_Creat_time');
+
+                                      return GestureDetector(
+                                        onTap: () async {
+                                          // await Navigator.pushAndRemoveUntil(
+                                          //     context,
+                                          //     PageTransition(
+                                          //       type: PageTransitionType
+                                          //           .bottomToTop,
+                                          //       child: home(
+                                          //           curetntVideo:
+                                          //               videiList[index],
+                                          //           curentThumbnile:
+                                          //               thumbnailList[index],
+                                          //           curentDonwnlad:
+                                          //               '${videoDownloadUrl}${downloadVideoId[index]}',
+                                          //           curetntDate: curent_date,
+                                          //           curentTime: curent_time),
+                                          //     ),
+                                          //     (route) => false);
+                                          HapticFeedback.heavyImpact();
+                                          final duration = await player.setUrl(
+                                              // Load a URL
+                                              'https://devshamseer.github.io/videoSongApi/click1.mp3'); // Schemes: (https: | file: | asset: )
+                                          player.play();
+
+                                          // Navigator.push(
+                                          //     context,
+                                          //     PageTransition(
+                                          //       duration: Duration(microseconds: 500),
+                                          //         type: PageTransitionType
+                                          //             .bottomToTop,
+                                          //         child: home(),
+                                          //     ));
+
+                                          videiList[index];
+                                          print(videiList[index]);
+                                          allvideo = videiList[index];
+                                          curentIndex = items;
+                                          curent_thumbnile =
+                                              thumbnailList[index];
+
+                                          curent_download =
+                                              '${videoDownloadUrl}${downloadVideoId[index]}';
+
+                                          DateTime dateTime =
+                                              DateTime.parse(dateList[index]);
+
+                                          print(DateFormat('d/M/y')
+                                              .format(dateTime));
+                                          curent_date = DateFormat('d/M/y')
+                                              .format(dateTime);
+                                          curent_time =
+                                              DateFormat('jm').format(dateTime);
+                                          print(DateFormat('jm')
+                                              .format(dateTime));
+
+                                          // Navigator.push(
+                                          //   context,
+                                          //   PageTransition(
+                                          //     type: PageTransitionType
+                                          //         .bottomToTop,
+                                          //     child: home(
+                                          //         curetntVideo:
+                                          //             videiList[index],
+                                          //         curentThumbnile:
+                                          //             thumbnailList[index],
+                                          //         curentDonwnlad:
+                                          //             '${videoDownloadUrl}${downloadVideoId[index]}',
+                                          //         curetntDate: curent_date,
+                                          //         curentTime: curent_time),
+                                          //   ),
+                                          // );
+
+                                          setState(() {});
+                                          final double _top = 0;
+
+                                          // Route _createRoute() {
+                                          //   return PageRouteBuilder(
+                                          //     pageBuilder: (context, animation,
+                                          //             secondaryAnimation) =>
+                                          //        home(
+                                          //             curetntVideo:
+                                          //                 videiList[index],
+                                          //             curentThumbnile:
+                                          //                 thumbnailList[index],
+                                          //             curentDonwnlad:
+                                          //                 '${videoDownloadUrl}${downloadVideoId[index]}',
+                                          //             curetntDate: curent_date,
+                                          //             curentTime: curent_time),
+                                          //     transitionsBuilder: (context,
+                                          //         animation,
+                                          //         secondaryAnimation,
+                                          //         child) {
+                                          //       const begin = Offset(0.0, 1.0);
+                                          //       const end = Offset.zero;
+                                          //       const curve = Curves.ease;
+
+                                          //       var tween = Tween(
+                                          //               begin: begin, end: end)
+                                          //           .chain(CurveTween(
+                                          //               curve: curve));
+
+                                          //       return SlideTransition(
+                                          //         position:
+                                          //             animation.drive(tween),
+                                          //         child: child,
+                                          //       );
+                                          //     },
+                                          //   );
+
+                                          // }
+
+                                          //    Navigator.of(context).pushAndRemoveUntil(
+                                          // MaterialPageRoute(
+                                          //     builder: (context) =>_createRoute()),
+                                          // (Route<dynamic> route) => false);
+
+                                          // _scrollController.animateTo(_top, duration:Duration(seconds: 12) ,curve:Curves.easeIn);
+                                        },
+                                        child: curentIndex == items
+                                            ? SizedBox()
+                                            : Padding(
+                                                padding:
+                                                    const EdgeInsets.all(12.0),
+                                                child: Container(
+                                                  height: 160,
+                                                  decoration: BoxDecoration(
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors
+                                                            .grey.shade600,
+                                                        spreadRadius: 1,
+                                                        blurRadius: 15,
+                                                        offset:
+                                                            const Offset(5, 5),
+                                                      ),
+                                                      const BoxShadow(
+                                                          color: Colors.white,
+                                                          offset:
+                                                              Offset(-5, -5),
+                                                          blurRadius: 15,
+                                                          spreadRadius: 1),
+                                                    ],
+                                                    color: curentIndex == items
+                                                        ? Color(0xFF252837)
+                                                        : Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                      Radius.circular(12),
+                                                    ),
+                                                  ),
+                                                  child: Stack(
+                                                    children: [
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        // child: Container(
+                                                        //   height: 120,
+                                                        //   width: 120,
+
+                                                        //   // child:  FlickVideoPlayer(
+
+                                                        //   //   flickManager: flickManager!),
+                                                        // ),
+                                                        child: Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  left: 15),
+                                                          height: 130,
+                                                          width: 195,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            border: Border.all(
+                                                              width: 3,
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      255,
+                                                                      255,
+                                                                      255),
+                                                            ),
+                                                            color: Colors.grey,
+                                                            image: DecorationImage(
+                                                                image: NetworkImage(
+                                                                    thumbnailList[
+                                                                        index]),
+                                                                fit: BoxFit
+                                                                    .cover),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .all(
+                                                              Radius.circular(
+                                                                  12),
+                                                            ),
+                                                          ),
+                                                          child: Center(
+                                                            child: Container(
+                                                              height: 51,
+                                                              width: 51,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        170,
+                                                                        0,
+                                                                        0,
+                                                                        0),
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                              ),
+                                                              child: Center(
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .play_arrow,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Positioned(
+                                                        bottom: 15,
+                                                        right: 12,
+                                                        child: Container(
+                                                          child: Row(
+                                                            children: [
+                                                              SizedBox(
+                                                                width: 15,
+                                                              ),
+                                                              GestureDetector(
+                                                                onTap:
+                                                                    () async {
+                                                                  HapticFeedback
+                                                                      .heavyImpact();
+                                                                  final duration =
+                                                                      await player.setUrl(
+                                                                          // Load a URL
+                                                                          'https://devshamseer.github.io/videoSongApi/download.wav'); // Schemes: (https: | file: | asset: )
+                                                                  player.play();
+                                                                  print(
+                                                                      "hello");
+                                                                  final prefs =
+                                                                      await SharedPreferences
+                                                                          .getInstance();
+                                                                  final String?
+                                                                      action =
+                                                                      prefs.getString(
+                                                                          'action');
+
+                                                                  // AnchorElement
+                                                                  //     anchorElement =
+                                                                  //     AnchorElement(
+                                                                  //         href:
+                                                                  //             "${videoDownloadUrl}${downloadVideoId[index]}/${action}")
+                                                                  //       ..setAttribute(
+                                                                  //           "download",
+                                                                  //           "hello.mp4")
+                                                                  //       ..click();
+                                                                  print(
+                                                                      "${videoDownloadUrl}${downloadVideoId[index]}/${action}");
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          boxShadow: [
+                                                                            BoxShadow(
+                                                                              color: Color.fromARGB(255, 0, 0, 0),
+                                                                              spreadRadius: 1,
+                                                                              blurRadius: 15,
+                                                                              offset: const Offset(3, 3),
+                                                                            ),
+                                                                            BoxShadow(
+                                                                                color: curentIndex == items ? Color.fromARGB(0, 0, 0, 0) : Colors.white,
+                                                                                offset: Offset(-2, -2),
+                                                                                blurRadius: 15,
+                                                                                spreadRadius: 1),
+                                                                          ],
+                                                                          color: curentIndex == items
+                                                                              ? Colors.white
+                                                                              : Colors.white,
+                                                                          borderRadius:
+                                                                              BorderRadius.all(
+                                                                            Radius.circular(12),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Row(
+                                                                          children: [
+                                                                            SizedBox(
+                                                                              width: 10,
+                                                                            ),
+                                                                            IconButton(
+                                                                              onPressed: (() async {
+                                                                                final duration = await player.setUrl(
+                                                                                    // Load a URL
+                                                                                    'https://devshamseer.github.io/videoSongApi/download.wav'); // Schemes: (https: | file: | asset: )
+                                                                                player.play();
+                                                                                final prefs = await SharedPreferences.getInstance();
+                                                                                final String? action = prefs.getString('action');
+
+                                                                                // AnchorElement anchorElement = AnchorElement(href: "${videoDownloadUrl}${downloadVideoId[index]}/${action}")
+                                                                                //   ..setAttribute("download", "hello.mp4")
+                                                                                //   ..click();
+                                                                                // print("${videoDownloadUrl}${downloadVideoId[index]}/${action}");
+                                                                              }),
+                                                                              icon: Icon(
+                                                                                Icons.download_rounded,
+                                                                                color: curentIndex == items ? Colors.black : Colors.black,
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(
+                                                                              width: 10,
+                                                                            ),
+                                                                          ],
+                                                                        )),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerRight,
+                                                        child: Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  right: 25,
+                                                                  top: 21),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .end,
+                                                            children: [
+                                                              Text(
+                                                                DateFormat(
+                                                                        'd/M/y')
+                                                                    .format(
+                                                                        dateTime),
+                                                                style: TextStyle(
+                                                                    color: curentIndex ==
+                                                                            items
+                                                                        ? Colors
+                                                                            .white
+                                                                        : Color(
+                                                                            0xFF252837),
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        17),
+                                                              ),
+                                                              SizedBox(
+                                                                height: 12,
+                                                              ),
+                                                              Text(
+                                                                DateFormat('jm')
+                                                                    .format(
+                                                                        dateTime),
+                                                                style: TextStyle(
+                                                                    color: curentIndex ==
+                                                                            items
+                                                                        ? Colors
+                                                                            .white
+                                                                        : Color(
+                                                                            0xFF252837),
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        17),
+                                                              ),
+                                                              Text(
+                                                                DateFormat('jm')
+                                                                    .format(
+                                                                        endtime),
+                                                                style: TextStyle(
+                                                                    color: curentIndex ==
+                                                                            items
+                                                                        ? Colors
+                                                                            .white
+                                                                        : Color(
+                                                                            0xFF252837),
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        17),
+                                                              ),
+                                                              SizedBox(
+                                                                height: 6,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          );
+  }
+
+  //vidoe server datas
+
+  Future<void> videoServerapi() async {
+//     final deviceInfo = await deviceInfoPlugin.deviceInfo;
+//     final platfomInfo=await deviceInfoPlugin.macOsInfo;
+// final allInfo = deviceInfo;
+// logger.i(platfomInfo);
+
+    // final deviceInfo = await deviceInfoPlugin.deviceInfo;
+    // logger.i(deviceInfo.data);
+
+// logger.w(allInfo.data['platform']);
+    //video Api Get
+
+    var getvideoserver;
+    // dio.options.headers["auth"] = accessToken;
+    getvideoserver = await Dio().post(
+      videoUrl,
+      data: {"camid": cameraId},
+    );
+
+//     if (qrCodValu == null || qrCodValu == "") {
+//       getvideoserver = await Dio().get(
+//         videoUrl,
+//       );
+//     } else {
+//       print(Uri.base
+//           .toString()); // http://localhost:8082/actfitarena?id=1&camid=Y2FtMQ
+//       // print("ssr" + Uri.base.query); // id=15&camid=3.14
+//       print("sss" + Uri.base.queryParameters['camid'].toString());
+//       var myUrl = Uri.base
+//           .toString(); // .  // http://localhost:8082/actfitarena?id=1&camid=Y2FtMQ
+//       var part1 = Uri.base.query; // actfitarena?id=1&camid=Y2FtMQ
+// //  var part2=Uri.base.queryParameters['camid'];
+//       cameraId = Uri.base.queryParameters['camid']; // Y2FtMQ
+
+//       var newqr = qrCodValu.replaceAll("http://192.168.29.40/web/?camid=", "");
+//       getvideoserver =
+//           await Dio().get('http://192.168.29.40:8081/listvideo/${newqr}');
+//     }
+
+    // getvideoserver=await Dio().get(qrCodValu);
+    //videos Api Listing
+
+    getvideoserver.data.forEach((k) {
+      var seen = Set();
+      setState(() {
+        //add Video && listVideo
+        videiList.add(k["filename"]);
+        videiList = videiList.where((country) => seen.add(country)).toList();
+        //add Date&Time && List Date&Time
+        dateList.add(k["Start_Date_Time"]);
+        //  dateList = dateList.where((country) => seen.add(country)).toList();
+        endDateList.add(k['end_date_time']);
+        // endDateList = endDateList.where((country) => seen.add(country)).toList();
+
+        dateList = dateList.where((country) => seen.add(country)).toList();
+        //add Thumbnil && List Thumbnail
+        thumbnailList.add(k["thumbnail"]);
+        thumbnailList =
+            thumbnailList.where((country) => seen.add(country)).toList();
+        //add Download Video Id && open Video Id
+        downloadVideoId.add(k["video_id"]);
+        downloadVideoId =
+            downloadVideoId.where((country) => seen.add(country)).toList();
+
+        //Play Fust Video
+        allvideo = videiList.first;
+        curent_thumbnile = thumbnailList.first;
+        // CameraId
+        whichCamera = k["description"];
+        print(whichCamera);
+
+        //Date
+        DateTime dateTime = DateTime.parse(dateList.first);
+
+        print(DateFormat('d/M/y').format(dateTime));
+        curent_date = DateFormat('d/M/y').format(dateTime);
+        curent_time = DateFormat('jm').format(dateTime);
+        print(DateFormat('jm').format(dateTime));
+      });
+    });
+    final prefs = await SharedPreferences.getInstance();
+    final String? action = prefs.getString('action');
+
+    curent_download = '${videoDownloadUrl}${downloadVideoId.first}/${action}';
+  }
+
+  scansound() async {
+    final player = AudioPlayer();
+    final duration = await player.setUrl(
+        // Load a URL
+        'https://devshamseer.github.io/videoSongApi/qrSound.wav'); // Schemes: (https: | file: | asset: )
+    player.play();
+  }
+}
+
+   ```
