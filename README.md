@@ -14,7 +14,12 @@
 
 https://devshamseer.github.io/youtubeApi/shorts/video1.mp4
 
-<iframe width="950" height="534" src="https://www.youtube.com/embed/HaAKBtBI_fs?list=RDHaAKBtBI_fs" title="Athmaavile Aanandhame | Maya Kinavil Mazhayakumo Nee| Sajeer koppam | Sibu sukumaran |Shafi eppikkad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<video width="400" controls>
+  <source src="https://devshamseer.github.io/youtubeApi/shorts/video1.mp4" type="video/mp4">
+  <source src="https://devshamseer.github.io/youtubeApi/shorts/video1.mp4" type="video/ogg">
+
+</video>
 
 
 <br>
