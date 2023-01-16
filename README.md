@@ -7,15 +7,10 @@
    <img src="https://devshamseer.github.io/all-audio-songs/document-image/mokz2.png" alt="Logo" width="400" height="900"> <img src="https://devshamseer.github.io/all-audio-songs/document-image/mokz3.png" width="400" height="900"/>
    
    
-   
-   ~[With an audio]([https://devshamseer.github.io/all-audio-songs/allsongs/sonng37.mp3])
-#[And a video]([example.com/example.mkv](https://devshamseer.github.io/videoSongApi/videosong1.mp4))
 
-   <audio controls>
-
-  <source src="https://devshamseer.github.io/all-audio-songs/allsongs/sonng37.mp3" type="audio/mpeg">
-</audio>
   
+  
+https://devshamseer.github.io/videoSongApi/videosong1.mp4?width=200&height=200
 
 caption1 | caption2
 :-: | :-:
