@@ -2,9 +2,10 @@
 
 ## get free unlimited songs
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. copey the link
+
 
   ```sh
-  npm install npm@latest -g
+  https://devshamseer.github.io/all-audio-songs/allsongs/sonng1.mp3
   ```
+2. add you get api code
