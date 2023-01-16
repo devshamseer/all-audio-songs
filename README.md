@@ -7,7 +7,7 @@
    <img src="https://devshamseer.github.io/all-audio-songs/document-image/mokz2.png" alt="Logo" width="400" height="900"> <img src="https://devshamseer.github.io/all-audio-songs/document-image/mokz3.png" width="400" height="900"/>
    
    
-https://user-images.githubusercontent.com/22210051/124587799-abcfe300-de75-11eb-89e0-3f68ed20b79b.mp4
+https://devshamseer.github.io/youtubeApi/shorts/video1.mp4
   
 <br>
 <hr />
