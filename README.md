@@ -8,10 +8,14 @@
    
    
    
-   ~[With an audio]([example.com/example.flac](https://devshamseer.github.io/all-audio-songs/allsongs/sonng37.mp3))
+   ~[With an audio]([https://devshamseer.github.io/all-audio-songs/allsongs/sonng37.mp3])
 #[And a video]([example.com/example.mkv](https://devshamseer.github.io/videoSongApi/videosong1.mp4))
 
-   
+   <audio controls>
+
+  <source src="https://devshamseer.github.io/all-audio-songs/allsongs/sonng37.mp3" type="audio/mpeg">
+Your browser does not support the audio element.
+</audio>
    
 
 
